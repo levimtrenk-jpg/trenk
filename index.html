@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Universal Downloader</title>
+<meta name="description" content="הורדת סרטונים ו-MP3 מיוטיוב, Shorts, טיקטוק ואינסטגרם – לטלפון ולמחשב.">
+<style>
+  :root {
+    --bg: #111319; --card: #1b1e27; --line: #2a2e3a; --fg: #f2f3f7; --muted: #a3a8b8;
+    --o: #ffb84d; --p: #ff5e8a; --v: #8b6cff;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 system-ui, "Segoe UI", Arial, sans-serif; }
+  main { max-width: 920px; margin: 0 auto; padding: 40px 16px 56px; }
+  .trenk { font-family: "JetBrains Mono", ui-monospace, monospace; font-weight: 700; letter-spacing: .35em; padding-left: .35em;
+    background: linear-gradient(90deg, var(--o), var(--p), var(--v)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  header { text-align: center; margin-bottom: 36px; }
+  header .trenk { font-size: 13px; }
+  h1 { margin: 6px 0 8px; font-size: clamp(28px, 6vw, 40px); }
+  header p { margin: 0; color: var(--muted); }
+  .ring { width: 72px; height: 72px; margin: 0 auto 14px; border-radius: 50%; padding: 3px;
+    background: conic-gradient(from var(--a, 0deg), var(--o), var(--p), var(--v), var(--o)); animation: spin 3s linear infinite; }
+  .ring i { display: grid; place-items: center; width: 100%; height: 100%; border-radius: 50%; background: var(--bg); color: #fff; }
+  @property --a { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+  @keyframes spin { to { --a: 360deg; } }
+  @media (prefers-reduced-motion: reduce) { .ring { animation: none; } }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px; display: flex; flex-direction: column; }
+  .card h2 { margin: 0 0 4px; font-size: 22px; }
+  .card .sub { color: var(--muted); margin: 0 0 16px; font-size: 14px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; color: #fff; font-weight: 700;
+    padding: 14px 18px; border-radius: 14px; background: linear-gradient(90deg, var(--o), var(--p), var(--v)); }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:focus-visible { outline: 3px solid var(--v); outline-offset: 3px; }
+  .size { font-weight: 400; opacity: .85; font-size: 14px; }
+  ol { margin: 18px 0 0; padding-inline-start: 22px; }
+  li { margin-bottom: 8px; }
+  li b { color: #fff; }
+  .note { margin-top: auto; padding-top: 14px; color: var(--muted); font-size: 13px; }
+  code { background: #0c0e13; border: 1px solid var(--line); padding: 1px 6px; border-radius: 6px; font-size: 13px; direction: ltr; unicode-bidi: isolate; }
+  footer { margin-top: 32px; text-align: center; color: var(--muted); font-size: 13px; }
+  #version { direction: ltr; unicode-bidi: isolate; }
+  .jump { display: inline-block; margin-top: 18px; color: var(--fg); text-decoration: none; font-weight: 600; font-size: 15px;
+    padding: 10px 20px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); }
+  .jump:hover { border-color: var(--v); }
+  .how { margin-bottom: 40px; }
+  .how h2, .dl-title { font-size: 24px; margin: 0 0 6px; text-align: center; }
+  .how-sub { text-align: center; color: var(--muted); margin: 0 0 20px; }
+  .steps { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+  .step { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px 20px 20px; margin: 0; }
+  .step .num { position: absolute; top: 14px; left: 16px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 13px; font-weight: 700; color: #fff; background: linear-gradient(135deg, var(--o), var(--p), var(--v)); }
+  .step .emoji { font-size: 30px; display: block; margin-bottom: 8px; }
+  .step h3 { margin: 0 0 6px; font-size: 18px; }
+  .step p { margin: 0; color: var(--muted); font-size: 15px; }
+  .step p b { color: var(--fg); }
+  .tip { display: flex; gap: 12px; align-items: center; margin-top: 14px; padding: 14px 18px; border-radius: 16px;
+    background: linear-gradient(var(--card), var(--card)) padding-box, linear-gradient(90deg, var(--o), var(--p), var(--v)) border-box;
+    border: 1.5px solid transparent; }
+  .tip .emoji { font-size: 24px; }
+  .tip p { margin: 0; font-size: 15px; }
+  .faq { margin-top: 18px; display: grid; gap: 8px; }
+  .faq details { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 0 18px; }
+  .faq summary { cursor: pointer; padding: 14px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; color: var(--muted); font-size: 20px; font-weight: 400; transition: transform .2s ease-out; }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p { margin: 0 0 14px; color: var(--muted); }
+  .dl-title { margin-bottom: 16px; scroll-margin-top: 16px; }
+  @media (prefers-reduced-motion: reduce) { .faq summary::after { transition: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="ring" aria-hidden="true"><i><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></i></div>
+    <div class="trenk">TRENK</div>
+    <h1>Universal Downloader</h1>
+    <p>ראית סרטון שאהבת? שומרים אותו בשתי לחיצות.<br>מיוטיוב, Shorts, טיקטוק ואינסטגרם – בחינם ובלי פרסומות.</p>
+    <a class="jump" href="#download">להורדה ↓</a>
+  </header>
+
+  <section aria-labelledby="how" class="how">
+    <h2 id="how">איך זה עובד?</h2>
+    <p class="how-sub">שלושה צעדים, בלי להעתיק קישורים ובלי אתרים מפוקפקים.</p>
+    <ol class="steps">
+      <li class="step">
+        <span class="num">1</span>
+        <span class="emoji" aria-hidden="true">🎬</span>
+        <h3>רואים סרטון</h3>
+        <p>ביוטיוב, Shorts, טיקטוק או אינסטגרם – ריל, פוסט או סרטון רגיל.</p>
+      </li>
+      <li class="step">
+        <span class="num">2</span>
+        <span class="emoji" aria-hidden="true">👆</span>
+        <h3>לוחצים על TRENK</h3>
+        <p><b>בטלפון:</b> שתף ← "הורדה עם TRENK".<br><b>במחשב:</b> הכפתור העגול שמופיע ליד הסרטון.</p>
+      </li>
+      <li class="step">
+        <span class="num">3</span>
+        <span class="emoji" aria-hidden="true">✨</span>
+        <h3>בוחרים איכות – וזהו</h3>
+        <p>וידאו עד 4K, או MP3 לשירים ופודקאסטים. הקובץ מחכה לך בגלריה.</p>
+      </li>
+    </ol>
+
+    <div class="tip">
+      <span class="emoji" aria-hidden="true">📌</span>
+      <p><b>טיפ:</b> כדי ש-TRENK תמיד יופיע ראשון כשלוחצים "שתף" – לחיצה ארוכה עליו בחלון השיתוף ← <b>הצמד</b>.</p>
+    </div>
+
+    <div class="faq">
+      <details>
+        <summary>כמה זה עולה?</summary>
+        <p>כלום. אין מנוי, אין פרסומות, אין הרשמה.</p>
+      </details>
+      <details>
+        <summary>איפה הקבצים נשמרים?</summary>
+        <p>בטלפון: סרטונים בגלריה (תיקיית Downloader), שירים במוזיקה. במחשב: בתיקייה <code>Downloads\Videos</code>.</p>
+      </details>
+      <details>
+        <summary>זה בטוח?</summary>
+        <p>ההורדה רצה אצלך במכשיר, בלי שרת באמצע. לא מבקשים ממך שום פרטים, והתחברות לאינסטגרם נדרשת רק לסטוריז.</p>
+      </details>
+      <details>
+        <summary>למה הטלפון מזהיר כשמתקינים?</summary>
+        <p>כי האפליקציה לא מגיעה מחנות Google Play. זו אזהרה רגילה לכל אפליקציה שמורידים מאתר – מאשרים פעם אחת וזהו.</p>
+      </details>
+      <details>
+        <summary>הורדה נכשלה, מה עושים?</summary>
+        <p>יוטיוב וטיקטוק משתנים מדי פעם. בטלפון: הגדרות ← <b>עדכן מנוע</b>. במחשב: האייקון ליד השעון ← <b>עדכן</b>. ואז "נסה שוב".</p>
+      </details>
+    </div>
+  </section>
+
+  <h2 id="download" class="dl-title">להורדה</h2>
+
+  <div class="grid">
+    <section class="card" aria-labelledby="android">
+      <h2 id="android">📱 טלפון אנדרואיד</h2>
+      <p class="sub">משתפים סרטון מהאפליקציה ובוחרים איכות</p>
+      <a class="btn" href="UniversalDownloader.apk" download>הורדת האפליקציה <span class="size">(APK, ~60MB)</span></a>
+      <ol>
+        <li>פותחים את הקובץ שירד. אם הטלפון שואל – <b>מאשרים התקנה מהדפדפן</b> ("מקורות לא ידועים").</li>
+        <li>ביוטיוב / טיקטוק / אינסטגרם: <b>שתף</b> ← <b>הורדה עם TRENK</b> ← בוחרים MP4 או MP3.</li>
+        <li>הסרטונים נשמרים בגלריה (<code>Movies/Downloader</code>), ה-MP3 במוזיקה.</li>
+      </ol>
+      <p class="note">לאנדרואיד 8 ומעלה, לטלפונים מהשנים האחרונות (arm64).</p>
+    </section>
+
+    <section class="card" aria-labelledby="windows">
+      <h2 id="windows">💻 מחשב Windows + כרום</h2>
+      <p class="sub">כפתור הורדה ישירות בתוך יוטיוב, טיקטוק ואינסטגרם</p>
+      <a class="btn" href="UniversalDownloader-Windows.zip" download>הורדה למחשב <span class="size">(ZIP)</span></a>
+      <ol>
+        <li>לוחצים על ה-ZIP שירד ← <b>חלץ הכול</b>.</li>
+        <li>לחיצה כפולה על <b>Install.bat</b>. אם מופיע "Windows הגן על המחשב" – <b>מידע נוסף</b> ← <b>הפעל בכל זאת</b>. ההתקנה מורידה לבד את מה שצריך (כמה דקות).</li>
+        <li>בסוף נפתח כרום: מפעילים <b>מצב מפתח</b> (למעלה מימין) ← <b>טעינת פריט לא ארוז</b> ← <code>Ctrl+V</code> ← <b>בחירת תיקייה</b>. הנתיב כבר מועתק.</li>
+      </ol>
+      <p class="note">Windows 10/11. הקבצים נשמרים ב-<code>Downloads\Videos</code>. המנוע עולה לבד עם המחשב (אייקון ליד השעון).</p>
+    </section>
+  </div>
+
+  <section aria-labelledby="look" style="margin-top:32px">
+    <h2 id="look" style="font-size:20px;margin:0 0 12px">איך זה נראה בטלפון</h2>
+    <img src="app-screens.png" alt="שלושה מסכים של האפליקציה: מסך ראשי עם הורדה פעילה והיסטוריה, חלון בחירת איכות, והגדרות" loading="lazy"
+      style="width:100%;height:auto;border-radius:18px;border:1px solid var(--line);display:block">
+  </section>
+
+  <footer>
+    <div>גרסה <span id="version">–</span></div>
+    <div>השתמשו רק בתוכן שמותר לכם להוריד.</div>
+  </footer>
+</main>
+<script>
+  fetch("version.json", { cache: "no-store" })
+    .then((r) => r.json())
+    .then((v) => { document.getElementById("version").textContent = v.version + " · " + v.date; })
+    .catch(() => {});
+</script>
+</body>
+</html>
